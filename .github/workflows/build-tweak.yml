@@ -22,33 +22,32 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential rsync curl perl unzip xz-utils
+          sudo apt-get install -y build-essential fakeroot rsync curl perl zip git libxml2 libtinfo6 unzip xz-utils
 
       - name: Install Theos
         run: |
-          if [ ! -d "theos" ]; then
+          if [ ! -d "theos/bin" ]; then
             git clone --recursive https://github.com/theos/theos.git theos
           fi
           echo "THEOS=$(pwd)/theos" >> $GITHUB_ENV
 
       - name: Install Toolchain
         run: |
-          if [ ! -f "$THEOS/toolchain/bin/clang" ]; then
-            mkdir -p $THEOS/toolchain
-            curl -L https://github.com/theos/toolchain/releases/latest/download/toolchain_linux_x86_64.tar.xz -o /tmp/toolchain.tar.xz
-            tar -xJf /tmp/toolchain.tar.xz -C $THEOS/toolchain --strip-components=1
+          if [ ! -f "$THEOS/toolchain/linux/iphone/bin/clang" ]; then
+            mkdir -p $THEOS/toolchain/linux/iphone
+            curl -sL https://github.com/L1ghtmann/llvm-project/releases/latest/download/iOSToolchain-x86_64.tar.xz | tar -xJf - -C $THEOS/toolchain/
           fi
-          echo "clang: $(ls $THEOS/toolchain/bin/clang 2>&1)"
+          echo "clang: $($THEOS/toolchain/linux/iphone/bin/clang --version 2>&1 | head -1)"
 
       - name: Install iOS SDK
         run: |
-          if [ ! -d "$THEOS/sdks/iPhoneOS16.5.sdk" ]; then
+          if [ ! -d "$THEOS/sdks/iPhoneOS"* ]; then
             mkdir -p $THEOS/sdks
             curl -L https://github.com/theos/sdks/archive/refs/heads/master.zip -o /tmp/sdks.zip
             unzip -q /tmp/sdks.zip -d /tmp/sdks
             cp -r /tmp/sdks/sdks-master/* $THEOS/sdks/
           fi
-          echo "sdk: $(ls $THEOS/sdks/ | head -3)"
+          echo "sdk: $(ls $THEOS/sdks/ | grep iPhoneOS | head -1)"
 
       - name: Build package
         run: |
