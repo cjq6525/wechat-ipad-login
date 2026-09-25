@@ -3,7 +3,6 @@ name: Build WeChat iPad Login Tweak
 on:
   push:
     branches: [main, master]
-    tags: ["v*"]
   workflow_dispatch:
 
 jobs:
@@ -13,17 +12,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Theos
+      - name: Cache Theos
         uses: actions/cache@v4
         with:
           path: theos
-          key: theos-${{ runner.os }}-${{ github.sha }}
+          key: theos-${{ runner.os }}
           restore-keys: theos-${{ runner.os }}
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential rsync curl perl
+          sudo apt-get install -y build-essential rsync curl perl unzip
 
       - name: Install Theos
         run: |
@@ -34,23 +33,20 @@ jobs:
 
       - name: Install iOS SDK
         run: |
-          curl -L https://github.com/theos/sdks/archive/main.zip -o sdks.zip
-          unzip -q sdks.zip -d theos/sdks
-          rm sdks.zip
+          mkdir -p $THEOS/sdks
+          curl -L https://github.com/theos/sdks/archive/refs/heads/main.zip -o /tmp/sdks.zip
+          unzip -q /tmp/sdks.zip -d /tmp/sdks
+          cp -r /tmp/sdks/sdks-main/* $THEOS/sdks/
+          ls $THEOS/sdks/
 
       - name: Build package
         run: |
           cd wechat-ipad-login
+          make clean || true
           make package FINAL=1
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: WeChatIPadLogin
+          name: WeChatIPadLogin-deb
           path: wechat-ipad-login/packages/*.deb
-
-      - name: Upload to release
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v1
-        with:
-          files: wechat-ipad-login/packages/*.deb
