@@ -1,0 +1,9 @@
+Package: com.user.wechatipadlogin
+Name: WeChat iPad Login
+Version: 1.0.0
+Architecture: iphoneos-arm64
+Description: Enable WeChat iPad multi-device login on iPhone
+Maintainer: User
+Author: Codex
+Section: Tweaks
+Depends: mobilesubstrate
