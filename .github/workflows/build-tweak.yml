@@ -34,9 +34,9 @@ jobs:
       - name: Install iOS SDK
         run: |
           mkdir -p $THEOS/sdks
-          curl -L https://github.com/theos/sdks/archive/refs/heads/main.zip -o /tmp/sdks.zip
+          curl -L https://github.com/theos/sdks/archive/refs/heads/master.zip -o /tmp/sdks.zip
           unzip -q /tmp/sdks.zip -d /tmp/sdks
-          cp -r /tmp/sdks/sdks-main/* $THEOS/sdks/
+          cp -r /tmp/sdks/sdks-master/* $THEOS/sdks/
           ls $THEOS/sdks/
 
       - name: Build package
